@@ -2,8 +2,7 @@
 This script builds libiconv,libxml2, libxslt, openssl and xmlsec
 #>
 Param(
-    [switch]$x64,
-    [switch]$vs2008
+    [switch]$x64
 )
 
 Function ThrowIfError($exitCode, $module)
@@ -19,24 +18,22 @@ Import-Module Pscx
 
 $x64Dir = If($x64) { "\x64" } Else { "" }
 $distname = If($x64) { "win64" } Else { "win32" }
-If($vs2008) { $distname = "vs2008.$distname" }
+$vcarch = If($x64) { "x64" } Else {"Win32"}
 $vcvarsarch = If($x64) { "amd64" } Else { "x86" }
-$vsver = If($vs2008) { "90" } Else { "140" }
 
 Set-Location $PSScriptRoot
 
-Import-VisualStudioVars -VisualStudioVersion $vsver -Architecture $vcvarsarch
+Import-VisualStudioVars -VisualStudioVersion 140 -Architecture $vcvarsarch
 
-if($vs2008) {
-    Set-Location .\libiconv\MSVC9
-    $vcarch = If($x64) { "x64" } Else {"Win32"}
-    vcbuild libiconv_static\libiconv_static.vcproj "Release|$vcarch"
-} else {
-    Set-Location .\libiconv\MSVC14
-    msbuild libiconv.sln /p:Configuration=Release /t:libiconv_static
-}
+Set-Location .\libiconv\MSVC14
+msbuild libiconv.sln /p:Configuration=Release /p:Platform=$vcarch /t:libiconv_static
 ThrowIfError $LastExitCode "libiconv"
-$iconvLib = Join-Path (pwd) libiconv_static$x64Dir\Release
+If($x64) {
+    $iconvLib = Join-Path (pwd) x64\lib
+}
+else {
+    $iconvLib = Join-Path (pwd) Win32\lib
+}
 $iconvInc = Join-Path (pwd) ..\source\include
 Set-Location ..\..
 
