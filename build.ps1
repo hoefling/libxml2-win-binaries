@@ -113,8 +113,8 @@ New-Item -ItemType Directory .\dist
 Dir $iconvLib\libiconv* | Copy-Item -Force -Destination {Join-Path $iconvLib ($_.Name -replace "libiconv","iconv") }
 
 BundleRelease "iconv-1.14.$distname" (dir $iconvLib\iconv_a*) (dir $iconvInc\*)
-BundleRelease "libxml2-2.9.5.$distname" (dir $xmlLib\*) (Get-Item $xmlInc\libxml)
-BundleRelease "libxslt-1.1.30.$distname" (dir .\libxslt\win32\bin.msvc\*) (Get-Item .\libxslt\libxslt,.\libxslt\libexslt)
+BundleRelease "libxml2-2.9.10.$distname" (dir $xmlLib\*) (Get-Item $xmlInc\libxml)
+BundleRelease "libxslt-1.1.34.$distname" (dir .\libxslt\win32\bin.msvc\*) (Get-Item .\libxslt\libxslt,.\libxslt\libexslt)
 BundleRelease "zlib-1.2.11.$distname" (Get-Item .\zlib\*.*) (Get-Item .\zlib\zconf.h,.\zlib\zlib.h)
-BundleRelease "openssl-1.0.1.$distname" (dir $sslLib\*) (Get-Item $sslInc\openssl)
-BundleRelease "xmlsec-1.2.24.$distname" (dir $xmlsecLib\*) (Get-Item $xmlsecInc\xmlsec)
+BundleRelease "openssl-1.0.2k.$distname" (dir $sslLib\*) (Get-Item $sslInc\openssl)
+BundleRelease "xmlsec-1.2.31.$distname" (dir $xmlsecLib\*) (Get-Item $xmlsecInc\xmlsec)
