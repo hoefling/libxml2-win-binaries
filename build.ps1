@@ -15,9 +15,10 @@ Function ThrowIfError($exitCode, $module)
 
 #$ErrorActionPreference = "Stop"
 
-echo $env:Path
-Get-Command nmake
-Get-Command link
+#Get-VSSetupInstance
+#Get-InstalledModule -Name "VSSetup"
+
+Import-VisualStudioVars -VisualStudioVersion 160 -Architecture $vcvarsarch
 
 $x64Dir = If($x64) { "\x64" } Else { "" }
 $distname = If($x64) { "win64" } Else { "win32" }
@@ -63,30 +64,28 @@ Set-Location ..\..
 
 # openssl
 $sslTarget = If($x64) { "VC-WIN64A" } Else { "VC-WIN32" }
-$sslDo = If($x64) { "do_win64a.bat" } Else { "do_ms.bat" }
 
 Set-Location .\openssl
-Start-Process -NoNewWindow -Wait perl "Configure no-asm enable-static-engine $sslTarget"
-Start-Process -NoNewWindow -Wait .\ms\$sslDo
-$p = Start-Process -NoNewWindow -Wait -PassThru nmake "-f .\ms\nt.mak init lib"
+Start-Process -NoNewWindow -Wait perl "Configure no-asm no-shared $sslTarget"
+$p = Start-Process -NoNewWindow -Wait -PassThru nmake
 ThrowIfError $p.ExitCode "openssl"
 
-$sslLib = Join-Path (pwd) "out32"
-$sslInc = Join-Path (pwd) "inc32"
+$sslLib = Join-Path (pwd).Path
+$sslInc = Join-Path (pwd) "include"
 Set-Location ..
 
 # xmlsec
 Set-Location .\xmlsec\win32
 cscript configure.js lib="$zlibLib;$iconvLib;$xmlLib;$sslLib;$xsltLib" include="$zlibInc;$iconvInc;$xmlInc;$sslInc;$xsltInc" iconv=yes xslt=yes unicode=yes static=yes with-dl=no
 nmake xmlseca
-$p = Start-Process -NoNewWindow -Wait -PassThru nmake xmlseca
-ThrowIfError $p.ExitCode "xmlsec"
+#$p = Start-Process -NoNewWindow -Wait -PassThru nmake xmlseca
+#ThrowIfError $p.ExitCode "xmlsec"
 $xmlsecLib = Join-Path (pwd) binaries
 $xmlsecInc = Join-Path (pwd) ..\include
 Set-Location ../..
 
 # Pushed by Import-VisualStudioVars
-#Pop-EnvironmentBlock
+Pop-EnvironmentBlock
 
 # Bundle releases
 Function BundleRelease($name, $lib, $inc)
@@ -101,8 +100,8 @@ Function BundleRelease($name, $lib, $inc)
     Copy-Item -Recurse $inc .\dist\$name\include
     Get-ChildItem -File -Recurse .\dist\$name\include | Where{$_.Name -NotMatch ".h$" } | Remove-Item
 
-    #Write-Zip  .\dist\$name .\dist\$name.zip
-    Compress-Archive -Path .\dist\$name -DestinationPath .\dist\$name.zip
+    Write-Zip  .\dist\$name .\dist\$name.zip
+    #Compress-Archive -Path .\dist\$name -DestinationPath .\dist\$name.zip
     Remove-Item -Recurse -Path .\dist\$name
 }
 
@@ -116,5 +115,5 @@ BundleRelease "iconv-1.16.$distname" (dir $iconvLib\iconv_a*) (dir $iconvInc\*)
 BundleRelease "libxml2-2.9.10.$distname" (dir $xmlLib\*) (Get-Item $xmlInc\libxml)
 BundleRelease "libxslt-1.1.34.$distname" (dir .\libxslt\win32\bin.msvc\*) (Get-Item .\libxslt\libxslt,.\libxslt\libexslt)
 BundleRelease "zlib-1.2.11.$distname" (Get-Item .\zlib\*.*) (Get-Item .\zlib\zconf.h,.\zlib\zlib.h)
-BundleRelease "openssl-1.0.2k.$distname" (dir $sslLib\*) (Get-Item $sslInc\openssl)
+#BundleRelease "openssl-1.1.1i.$distname" (dir $sslLib\*) (Get-Item $sslInc\openssl)
 BundleRelease "xmlsec-1.2.31.$distname" (dir $xmlsecLib\*) (Get-Item $xmlsecInc\xmlsec)

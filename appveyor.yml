@@ -7,8 +7,13 @@ install:
 - cmd: git submodule update --init --recursive
 build: off
 build_script:
-- ps: $env:Path = "C:\Program Files (x86)\Microsoft Visual Studio 14.0\VC\bin\;" + $env:Path
-- ps: $env:INCLUDE += ";C:\Program Files (x86)\Windows Kits\10\Include\10.0.19041.0\shared;C:\Program Files (x86)\Windows Kits\10\Include\10.0.19041.0\winrt;C:\Program Files (x86)\Windows Kits\10\Include\10.0.19041.0\ucrt;C:\Program Files (x86)\Windows Kits\10\Include\10.0.19041.0\um;C:\Program Files (x86)\Microsoft Visual Studio 14.0\VC\include"
+#- ps: Install-Package PowerShellGet -Force
+- ps: Install-Module -Name Pscx -scope CurrentUser -AllowClobber -AllowPrerelease -RequiredVersion 4.0.0-beta2
+- ps: Install-Module -Name VSSetup -scope CurrentUser
+- ps: $env:Path = "C:\strawberry\c\bin;C:\strawberry\perl\site\bin;C:\strawberry\perl\bin;" + $env:Path
+#- ps: $env:Path = "C:\Program Files (x86)\Microsoft Visual Studio 14.0\VC\bin\;C:\strawberry\c\bin;C:\strawberry\perl\site\bin;C:\strawberry\perl\bin;C:\Program Files (x86)\Windows Kits\10\bin\10.0.19041.0\$env:Architecture;" + $env:Path
+#- ps: $env:INCLUDE += ";C:\Program Files (x86)\Windows Kits\10\Include\10.0.19041.0\shared;C:\Program Files (x86)\Windows Kits\10\Include\10.0.19041.0\winrt;C:\Program Files (x86)\Windows Kits\10\Include\10.0.19041.0\ucrt;C:\Program Files (x86)\Windows Kits\10\Include\10.0.19041.0\um;C:\Program Files (x86)\Microsoft Visual Studio 14.0\VC\include"
+#- ps: $env:LIB += ";C:\Program Files (x86)\Microsoft Visual Studio 14.0\VC\lib;C:\Program Files (x86)\Windows Kits\10\Lib\10.0.19041.0\um\$env:Architecture;C:\Program Files (x86)\Windows Kits\10\Lib\10.0.19041.0\ucrt\$env:Architecture"
 - ps: >-
     $x64param = if ($env:Architecture -eq 'x64') { $true } else { $false }
     .\build.ps1 -x64:$x64param
