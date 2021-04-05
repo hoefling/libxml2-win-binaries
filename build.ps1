@@ -13,8 +13,11 @@ Function ThrowIfError($exitCode, $module)
     }
 }
 
-$ErrorActionPreference = "Stop"
-Import-Module Pscx
+#$ErrorActionPreference = "Stop"
+
+echo $env:Path
+Get-Command nmake
+Get-Command link
 
 $x64Dir = If($x64) { "\x64" } Else { "" }
 $distname = If($x64) { "win64" } Else { "win32" }
@@ -23,9 +26,7 @@ $vcvarsarch = If($x64) { "amd64" } Else { "x86" }
 
 Set-Location $PSScriptRoot
 
-Import-VisualStudioVars -VisualStudioVersion 140 -Architecture $vcvarsarch
-
-Set-Location .\libiconv\MSVC14
+Set-Location .\libiconv\MSVC16
 msbuild libiconv.sln /p:Configuration=Release /p:Platform=$vcarch /t:libiconv_static
 ThrowIfError $LastExitCode "libiconv"
 If($x64) {
@@ -77,6 +78,7 @@ Set-Location ..
 # xmlsec
 Set-Location .\xmlsec\win32
 cscript configure.js lib="$zlibLib;$iconvLib;$xmlLib;$sslLib;$xsltLib" include="$zlibInc;$iconvInc;$xmlInc;$sslInc;$xsltInc" iconv=yes xslt=yes unicode=yes static=yes with-dl=no
+nmake xmlseca
 $p = Start-Process -NoNewWindow -Wait -PassThru nmake xmlseca
 ThrowIfError $p.ExitCode "xmlsec"
 $xmlsecLib = Join-Path (pwd) binaries
@@ -84,7 +86,7 @@ $xmlsecInc = Join-Path (pwd) ..\include
 Set-Location ../..
 
 # Pushed by Import-VisualStudioVars
-Pop-EnvironmentBlock
+#Pop-EnvironmentBlock
 
 # Bundle releases
 Function BundleRelease($name, $lib, $inc)
@@ -99,7 +101,8 @@ Function BundleRelease($name, $lib, $inc)
     Copy-Item -Recurse $inc .\dist\$name\include
     Get-ChildItem -File -Recurse .\dist\$name\include | Where{$_.Name -NotMatch ".h$" } | Remove-Item
 
-    Write-Zip  .\dist\$name .\dist\$name.zip
+    #Write-Zip  .\dist\$name .\dist\$name.zip
+    Compress-Archive -Path .\dist\$name -DestinationPath .\dist\$name.zip
     Remove-Item -Recurse -Path .\dist\$name
 }
 

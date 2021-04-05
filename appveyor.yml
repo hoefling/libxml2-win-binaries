@@ -1,14 +1,14 @@
+image: Visual Studio 2019
 environment:
   matrix:
-  - Architecture: x86
-    Compiler: vs2015
+#  - Architecture: x86
   - Architecture: x64
-    Compiler: vs2015
 install:
 - cmd: git submodule update --init --recursive
-- ps: install-module pscx -scope CurrentUser -AllowClobber
 build: off
 build_script:
+- ps: $env:Path = "C:\Program Files (x86)\Microsoft Visual Studio 14.0\VC\bin\;" + $env:Path
+- ps: $env:INCLUDE += ";C:\Program Files (x86)\Windows Kits\10\Include\10.0.19041.0\shared;C:\Program Files (x86)\Windows Kits\10\Include\10.0.19041.0\winrt;C:\Program Files (x86)\Windows Kits\10\Include\10.0.19041.0\ucrt;C:\Program Files (x86)\Windows Kits\10\Include\10.0.19041.0\um;C:\Program Files (x86)\Microsoft Visual Studio 14.0\VC\include"
 - ps: >-
     $x64param = if ($env:Architecture -eq 'x64') { $true } else { $false }
     .\build.ps1 -x64:$x64param
