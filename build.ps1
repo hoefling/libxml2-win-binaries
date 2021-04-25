@@ -13,12 +13,10 @@ Function ThrowIfError($exitCode, $module)
     }
 }
 
-#$ErrorActionPreference = "Stop"
+$ErrorActionPreference = "Stop"
 
 #Get-VSSetupInstance
 #Get-InstalledModule -Name "VSSetup"
-
-Import-VisualStudioVars -VisualStudioVersion 160 -Architecture $vcvarsarch
 
 $x64Dir = If($x64) { "\x64" } Else { "" }
 $distname = If($x64) { "win64" } Else { "win32" }
@@ -26,6 +24,7 @@ $vcarch = If($x64) { "x64" } Else {"Win32"}
 $vcvarsarch = If($x64) { "amd64" } Else { "x86" }
 
 Set-Location $PSScriptRoot
+Import-VisualStudioVars -VisualStudioVersion 160 -Architecture $vcvarsarch
 
 Set-Location .\libiconv\MSVC16
 msbuild libiconv.sln /p:Configuration=Release /p:Platform=$vcarch /t:libiconv_static
@@ -116,4 +115,4 @@ BundleRelease "libxml2-2.9.10.$distname" (dir $xmlLib\*) (Get-Item $xmlInc\libxm
 BundleRelease "libxslt-1.1.34.$distname" (dir .\libxslt\win32\bin.msvc\*) (Get-Item .\libxslt\libxslt,.\libxslt\libexslt)
 BundleRelease "zlib-1.2.11.$distname" (Get-Item .\zlib\*.*) (Get-Item .\zlib\zconf.h,.\zlib\zlib.h)
 #BundleRelease "openssl-1.1.1i.$distname" (dir $sslLib\*) (Get-Item $sslInc\openssl)
-BundleRelease "xmlsec-1.2.31.$distname" (dir $xmlsecLib\*) (Get-Item $xmlsecInc\xmlsec)
+BundleRelease "xmlsec-1.2.32.$distname" (dir $xmlsecLib\*) (Get-Item $xmlsecInc\xmlsec)
